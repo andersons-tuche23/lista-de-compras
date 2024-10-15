@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { StyledShoppingListContainer, Item, Button, Title, InputContainer } from './styles'; 
+import { StyledShoppingListContainer, Item, Button, Title, InputContainer, RemainingItems, ClearButtonContainer } from './styles'; 
 
 interface ItemType {
   id: string;
@@ -14,10 +14,27 @@ const ShoppingList = () => {
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
 
+  useEffect(() => {
+    const savedItems = localStorage.getItem('shoppingList');
+    if (savedItems) {
+      setItems(JSON.parse(savedItems));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (items.length > 0) {
+      localStorage.setItem('shoppingList', JSON.stringify(items));
+    } else {
+      localStorage.removeItem('shoppingList'); 
+    }
+  }, [items]);
+
   const addItem = () => {
     if (newItem.trim()) {
       setItems([...items, { id: uuidv4(), name: newItem, checked: false }]);
       setNewItem('');
+    } else {
+      alert('O nome do item não pode estar vazio!');
     }
   };
 
@@ -44,17 +61,24 @@ const ShoppingList = () => {
     setEditText('');
   };
 
+  const clearAllItems = () => {
+    setItems([]); 
+  };
+
+  const uncompletedItems = items.filter(item => !item.checked).length;
+
   return (
     <StyledShoppingListContainer>
       <Title>Lista de Mercado</Title>
       <InputContainer>
-      <input
-        type="text"
-        value={newItem}
-        onChange={(e) => setNewItem(e.target.value)}
-        placeholder="Add new item"
-      />
-      <Button onClick={addItem}>Adicionar</Button>
+        <input
+          type="text"
+          value={newItem}
+          onChange={(e) => setNewItem(e.target.value)}
+          placeholder="Adicionar novo item"
+          aria-label="Novo item de compra"
+        />
+        <Button onClick={addItem}>Adicionar</Button>
       </InputContainer>
       {items.map(item => (
         <Item key={item.id} isChecked={item.checked}>
@@ -64,8 +88,9 @@ const ShoppingList = () => {
                 type="text"
                 value={editText}
                 onChange={(e) => setEditText(e.target.value)}
+                aria-label={`Editar item ${item.name}`}
               />
-              <Button onClick={() => saveEdit(item.id)}>Save</Button>
+              <Button onClick={() => saveEdit(item.id)}>Salvar</Button>
             </>
           ) : (
             <>
@@ -74,13 +99,21 @@ const ShoppingList = () => {
                 type="checkbox"
                 checked={item.checked}
                 onChange={() => toggleChecked(item.id)}
+                aria-label={`Marcar ${item.name} como completo`}
               />
-              <Button onClick={() => deleteItem(item.id)}>Delete</Button>
-              <Button onClick={() => editItem(item.id)}>Edit</Button>
+              <Button onClick={() => deleteItem(item.id)}>Excluir</Button>
+              <Button onClick={() => editItem(item.id)}>Editar</Button>
             </>
           )}
         </Item>
       ))}
+      <RemainingItems>{uncompletedItems} itens restantes</RemainingItems>
+
+      {items.length > 0 && (
+        <ClearButtonContainer>
+          <Button onClick={clearAllItems}>Limpar Tudo</Button>
+        </ClearButtonContainer>
+      )}
     </StyledShoppingListContainer>
   );
 };
