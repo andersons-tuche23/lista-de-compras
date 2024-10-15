@@ -85,4 +85,17 @@ export const RemainingItems = styled.p`
   text-align: center;
   font-weight: bold;
   margin-top: 10px;
+  font-size: 1.2rem; 
+  color: #4CAF50; 
+  background-color: #f9f9f9; 
+  padding: 10px; 
+  border-radius: 5px; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+  transition: background-color 0.3s; 
+  
+  /* Efeito hover */
+  &:hover {
+    background-color: #e1f5e1; 
+  }
 `;
+

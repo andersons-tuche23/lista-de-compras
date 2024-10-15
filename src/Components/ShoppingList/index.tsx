@@ -1,6 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { StyledShoppingListContainer, Item, Button, Title, InputContainer, RemainingItems, ClearButtonContainer } from './styles'; 
+import React, { useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
+import {
+  StyledShoppingListContainer,
+  Item,
+  Button,
+  Title,
+  InputContainer,
+  RemainingItems,
+  ClearButtonContainer,
+} from "./styles";
 
 interface ItemType {
   id: string;
@@ -10,12 +18,12 @@ interface ItemType {
 
 const ShoppingList = () => {
   const [items, setItems] = useState<ItemType[]>([]);
-  const [newItem, setNewItem] = useState('');
+  const [newItem, setNewItem] = useState("");
   const [editingItem, setEditingItem] = useState<string | null>(null);
-  const [editText, setEditText] = useState('');
+  const [editText, setEditText] = useState("");
 
   useEffect(() => {
-    const savedItems = localStorage.getItem('shoppingList');
+    const savedItems = localStorage.getItem("shoppingList");
     if (savedItems) {
       setItems(JSON.parse(savedItems));
     }
@@ -23,49 +31,51 @@ const ShoppingList = () => {
 
   useEffect(() => {
     if (items.length > 0) {
-      localStorage.setItem('shoppingList', JSON.stringify(items));
+      localStorage.setItem("shoppingList", JSON.stringify(items));
     } else {
-      localStorage.removeItem('shoppingList'); 
+      localStorage.removeItem("shoppingList");
     }
   }, [items]);
 
   const addItem = () => {
     if (newItem.trim()) {
       setItems([...items, { id: uuidv4(), name: newItem, checked: false }]);
-      setNewItem('');
+      setNewItem("");
     } else {
-      alert('O nome do item não pode estar vazio!');
+      alert("O nome do item não pode estar vazio!");
     }
   };
 
   const deleteItem = (id: string) => {
-    setItems(items.filter(item => item.id !== id));
+    setItems(items.filter((item) => item.id !== id));
   };
 
   const toggleChecked = (id: string) => {
-    setItems(items.map(item =>
-      item.id === id ? { ...item, checked: !item.checked } : item
-    ));
+    setItems(
+      items.map((item) =>
+        item.id === id ? { ...item, checked: !item.checked } : item
+      )
+    );
   };
 
   const editItem = (id: string) => {
     setEditingItem(id);
-    setEditText(items.find(item => item.id === id)?.name || '');
+    setEditText(items.find((item) => item.id === id)?.name || "");
   };
 
   const saveEdit = (id: string) => {
-    setItems(items.map(item =>
-      item.id === id ? { ...item, name: editText } : item
-    ));
+    setItems(
+      items.map((item) => (item.id === id ? { ...item, name: editText } : item))
+    );
     setEditingItem(null);
-    setEditText('');
+    setEditText("");
   };
 
   const clearAllItems = () => {
-    setItems([]); 
+    setItems([]);
   };
 
-  const uncompletedItems = items.filter(item => !item.checked).length;
+  const uncompletedItems = items.filter((item) => !item.checked).length;
 
   return (
     <StyledShoppingListContainer>
@@ -80,7 +90,7 @@ const ShoppingList = () => {
         />
         <Button onClick={addItem}>Adicionar</Button>
       </InputContainer>
-      {items.map(item => (
+      {items.map((item) => (
         <Item key={item.id} isChecked={item.checked}>
           {editingItem === item.id ? (
             <>
@@ -107,8 +117,9 @@ const ShoppingList = () => {
           )}
         </Item>
       ))}
-      <RemainingItems>{uncompletedItems} itens restantes</RemainingItems>
-
+      {items.length > 0 && (
+        <RemainingItems>{uncompletedItems} itens restantes</RemainingItems>
+      )}
       {items.length > 0 && (
         <ClearButtonContainer>
           <Button onClick={clearAllItems}>Limpar Tudo</Button>
